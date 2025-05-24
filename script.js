@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let playerSequence = [];
     let score = 0;
     let highScore = 0;
-    let topScores = JSON.parse(localStorage.getItem('simonTopScores')) || [];
+    let topScores = JSON.parse(localStorage.getItem('simonTopScores')) || [0, 0, 0]; // Initialize with [0,0,0]
     let strictMode = false;
     let gameActive = false;
     
@@ -79,6 +79,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     }
     
+    // Update score display and track level achievements
+    function updateScore() {
+        scoreDisplay.textContent = score;
+        
+        // Update high score display
+        if (score > highScore) {
+            highScore = score;
+            highScoreDisplay.textContent = `Highest: Level ${highScore}`;
+        }
+        
+        // Update top scores in real-time as player progresses
+        if (score > 0 && !topScores.includes(score)) {
+            updateTopScores(score);
+        }
+    }
+    
     // Handle player input
     function handleButtonClick(e) {
         if (!gameActive) return;
@@ -87,7 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
         playerSequence.push(buttonId);
         lightUpButton(buttonId);
         
+        // Check if the player's sequence matches
         if (playerSequence[playerSequence.length - 1] !== sequence[playerSequence.length - 1]) {
+            // Wrong sequence
             if (strictMode) {
                 gameOver();
             } else {
@@ -97,48 +115,46 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
+        // Correct sequence so far
         if (playerSequence.length === sequence.length) {
+            // Completed the sequence
             score++;
             updateScore();
-            
-            if (score > highScore) {
-                highScore = score;
-                highScoreDisplay.textContent = highScore;
-            }
             
             setTimeout(() => startNewRound(), 1000);
         }
     }
     
-    // Update score display
-    function updateScore() {
-        scoreDisplay.textContent = score;
-        highScoreDisplay.textContent = topScores.length > 0 ? topScores[0] : 0;
-    }
-    
     // Game over
     function gameOver() {
         gameActive = false;
-        updateTopScores(score);
         finalScoreDisplay.textContent = score;
         gameOverScreen.classList.remove('hidden');
     }
     
     // Update top scores
     function updateTopScores(newScore) {
-        topScores.push(newScore);
-        topScores.sort((a, b) => b - a);
-        topScores = topScores.slice(0, 10);
-        localStorage.setItem('simonTopScores', JSON.stringify(topScores));
-        renderTopScores();
+        // Only add if it's a new level achievement
+        if (!topScores.includes(newScore)) {
+            topScores.push(newScore);
+            topScores.sort((a, b) => b - a);
+            topScores = topScores.slice(0, 3);
+            
+            // Save to localStorage
+            localStorage.setItem('simonTopScores', JSON.stringify(topScores));
+            
+            // Update display
+            renderTopScores();
+        }
     }
     
-    // Render top scores (simplified to show just scores)
+    // Render top scores
     function renderTopScores() {
         topScoresList.innerHTML = '';
-        topScores.forEach((score, index) => {
+        // Filter out 0 scores and display only reached levels
+        topScores.filter(score => score > 0).forEach((score) => {
             const li = document.createElement('li');
-            li.textContent = `${score}`; // Just show the score number
+            li.textContent = `Reached Level ${score}`;
             topScoresList.appendChild(li);
         });
     }
@@ -179,5 +195,5 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize displays
     renderTopScores();
-    highScoreDisplay.textContent = topScores.length > 0 ? topScores[0] : 0;
+    highScoreDisplay.textContent = topScores.length > 0 ? `Highest: Level ${Math.max(...topScores)}` : '0';
 });
