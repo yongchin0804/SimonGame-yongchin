@@ -108,3 +108,16 @@ button:hover {
 #music-btn:hover {
     background-color: #45a049;
 }
+#difficulty-select {
+    padding: 8px;
+    margin-left: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.controls label {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 10px;
+    font-size: 16px;
+}
