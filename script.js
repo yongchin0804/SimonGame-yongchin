@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let topScores = JSON.parse(localStorage.getItem('simonTopScores')) || [];
     let strictMode = false;
     let gameActive = false;
+    let isPlayingSequence = false;
     let difficulty = 'medium';
     let speedSettings = {
         easy: { sequenceSpeed: 1000, lightDuration: 600 },
@@ -74,18 +75,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start a new round
     function startNewRound() {
         playerSequence = [];
-        sequence.push(Math.floor(Math.random() * buttons.length)); // Use buttons.length instead of hardcoded 5
+        sequence.push(Math.floor(Math.random() * buttons.length));
         playSequence();
     }
     
     // Play the current sequence
     function playSequence() {
+        isPlayingSequence = true;
         let i = 0;
         const speed = speedSettings[difficulty].sequenceSpeed;
         
         const interval = setInterval(() => {
             if (i >= sequence.length) {
                 clearInterval(interval);
+                isPlayingSequence = false;
                 return;
             }
             
@@ -98,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Light up a button
     function lightUpButton(buttonId) {
         const button = document.getElementById(buttonId.toString());
-        if (!button) return; // Safety check
+        if (!button) return;
         
         button.classList.add('lit');
         playSound(button.getAttribute('data-color'));
@@ -117,14 +120,14 @@ document.addEventListener('DOMContentLoaded', () => {
             highScoreDisplay.textContent = highScore;
         }
         
-        if (score > 0) {
+        if (score > 0 && !practiceBtn.disabled) {
             updateTopScores(score);
         }
     }
     
     // Handle player input
     function handleButtonClick(e) {
-        if (!gameActive) return;
+        if (!gameActive || isPlayingSequence) return;
         
         const buttonId = parseInt(e.target.id);
         playerSequence.push(buttonId);
@@ -132,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Check if the player's sequence matches
         if (playerSequence[playerSequence.length - 1] !== sequence[playerSequence.length - 1]) {
-            // Wrong sequence
             playSound('wrong');
             if (strictMode && !practiceBtn.disabled) {
                 gameOver();
@@ -145,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Correct sequence so far
         if (playerSequence.length === sequence.length) {
-            // Completed the sequence
             score++;
             if (!practiceBtn.disabled) {
                 updateScore();
@@ -166,10 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update top scores
     function updateTopScores(newScore) {
-        if (practiceBtn.disabled) return;
-        
         topScores.push(newScore);
-        topScores = [...new Set(topScores)]; // Remove duplicates
         topScores.sort((a, b) => b - a);
         topScores = topScores.slice(0, 10);
         localStorage.setItem('simonTopScores', JSON.stringify(topScores));
