@@ -17,10 +17,9 @@
     position: relative;
 }
 
-/* Remove the grid-column span for red button */
+/* Button colors */
 .red {
     background-color: #ff4d4d;
-    /* Removed: grid-column: span 2; */
 }
 
 .blue {
