@@ -10,9 +10,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let playerSequence = [];
     let score = 0;
     let highScore = 0;
-    let topScores = JSON.parse(localStorage.getItem('simonTopScores')) || [0, 0, 0]; // Initialize with [0,0,0]
+    let topScores = JSON.parse(localStorage.getItem('simonTopScores')) || [0, 0, 0];
     let strictMode = false;
     let gameActive = false;
+    let difficulty = 'medium'; // Default difficulty
+    let speedSettings = {
+        easy: { sequenceSpeed: 1000, lightDuration: 600 },
+        medium: { sequenceSpeed: 800, lightDuration: 500 },
+        hard: { sequenceSpeed: 500, lightDuration: 300 }
+    };
     
     // DOM elements
     const buttons = document.querySelectorAll('.button');
@@ -24,6 +30,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const finalScoreDisplay = document.getElementById('final-score');
     const topScoresList = document.getElementById('top-scores-list');
     const playAgainBtn = document.getElementById('play-again-btn');
+    const difficultySelect = document.createElement('select');
+    
+    // Create difficulty selection
+    function createDifficultySelect() {
+        difficultySelect.id = 'difficulty-select';
+        
+        const difficulties = [
+            { value: 'easy', text: 'Easy' },
+            { value: 'medium', text: 'Medium' },
+            { value: 'hard', text: 'Hard' }
+        ];
+        
+        difficulties.forEach(diff => {
+            const option = document.createElement('option');
+            option.value = diff.value;
+            option.textContent = diff.text;
+            if (diff.value === difficulty) option.selected = true;
+            difficultySelect.appendChild(option);
+        });
+        
+        difficultySelect.addEventListener('change', (e) => {
+            difficulty = e.target.value;
+        });
+        
+        // Add to controls div
+        const controls = document.querySelector('.controls');
+        const label = document.createElement('label');
+        label.textContent = 'Difficulty: ';
+        label.appendChild(difficultySelect);
+        controls.insertBefore(label, startBtn);
+    }
     
     // Toggle music function
     function toggleMusic() {
@@ -53,9 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
         playSequence();
     }
     
-    // Play the current sequence
+    // Play the current sequence with difficulty-based speed
     function playSequence() {
         let i = 0;
+        const speed = speedSettings[difficulty].sequenceSpeed;
+        
         const interval = setInterval(() => {
             if (i >= sequence.length) {
                 clearInterval(interval);
@@ -65,10 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const buttonId = sequence[i];
             lightUpButton(buttonId);
             i++;
-        }, 800);
+        }, speed);
     }
     
-    // Light up a button
+    // Light up a button with difficulty-based duration
     function lightUpButton(buttonId) {
         const button = document.getElementById(buttonId.toString());
         button.classList.add('lit');
@@ -76,20 +115,18 @@ document.addEventListener('DOMContentLoaded', () => {
         
         setTimeout(() => {
             button.classList.remove('lit');
-        }, 500);
+        }, speedSettings[difficulty].lightDuration);
     }
     
     // Update score display and track level achievements
     function updateScore() {
         scoreDisplay.textContent = score;
         
-        // Update high score display
         if (score > highScore) {
             highScore = score;
             highScoreDisplay.textContent = `Highest: Level ${highScore}`;
         }
         
-        // Update top scores in real-time as player progresses
         if (score > 0 && !topScores.includes(score)) {
             updateTopScores(score);
         }
@@ -103,9 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerSequence.push(buttonId);
         lightUpButton(buttonId);
         
-        // Check if the player's sequence matches
         if (playerSequence[playerSequence.length - 1] !== sequence[playerSequence.length - 1]) {
-            // Wrong sequence
             if (strictMode) {
                 gameOver();
             } else {
@@ -115,13 +150,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Correct sequence so far
         if (playerSequence.length === sequence.length) {
-            // Completed the sequence
             score++;
             updateScore();
-            
-            setTimeout(() => startNewRound(), 1000);
+            setTimeout(() => startNewRound(), speedSettings[difficulty].sequenceSpeed);
         }
     }
     
@@ -134,16 +166,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update top scores
     function updateTopScores(newScore) {
-        // Only add if it's a new level achievement
         if (!topScores.includes(newScore)) {
             topScores.push(newScore);
             topScores.sort((a, b) => b - a);
             topScores = topScores.slice(0, 3);
-            
-            // Save to localStorage
             localStorage.setItem('simonTopScores', JSON.stringify(topScores));
-            
-            // Update display
             renderTopScores();
         }
     }
@@ -151,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render top scores
     function renderTopScores() {
         topScoresList.innerHTML = '';
-        // Filter out 0 scores and display only reached levels
         topScores.filter(score => score > 0).forEach((score) => {
             const li = document.createElement('li');
             li.textContent = `Reached Level ${score}`;
@@ -171,6 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
         audio.play().catch(e => console.log("Audio play failed:", e));
     }
     
+    // Create difficulty selection on load
+    createDifficultySelect();
+    
     // Event listeners
     buttons.forEach(button => {
         button.addEventListener('click', handleButtonClick);
@@ -183,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     strictBtn.addEventListener('click', toggleStrictMode);
-    
     musicBtn.addEventListener('click', toggleMusic);
     
     playAgainBtn.addEventListener('click', () => {
