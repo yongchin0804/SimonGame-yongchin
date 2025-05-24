@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Background music setup
+    const bgMusic = document.getElementById('bgMusic');
+    bgMusic.volume = 0.3; // Set volume to 30%
+    let musicOn = true;
+    const musicBtn = document.getElementById('music-btn');
+    
     // Game state
     let sequence = [];
     let playerSequence = [];
@@ -19,6 +25,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const topScoresList = document.getElementById('top-scores-list');
     const playAgainBtn = document.getElementById('play-again-btn');
     
+    // Toggle music function
+    function toggleMusic() {
+        musicOn = !musicOn;
+        musicBtn.textContent = `Music: ${musicOn ? 'ON' : 'OFF'}`;
+        
+        if (musicOn) {
+            bgMusic.play().catch(e => console.log("Music play failed:", e));
+        } else {
+            bgMusic.pause();
+        }
+    }
+    
     // Initialize game
     function initGame() {
         sequence = [];
@@ -31,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start a new round
     function startNewRound() {
         playerSequence = [];
-        sequence.push(Math.floor(Math.random() * 4));
+        sequence.push(Math.floor(Math.random() * 5)); // Now includes 5 buttons (0-4)
         playSequence();
     }
     
@@ -55,8 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const button = document.getElementById(buttonId.toString());
         button.classList.add('lit');
         
-        // Play sound (you would need audio files for this)
-        // playSound(button.getAttribute('data-color'));
+        // Play sound
+        playSound(button.getAttribute('data-color'));
         
         setTimeout(() => {
             button.classList.remove('lit');
@@ -91,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (score > highScore) {
                 highScore = score;
-                highScoreDisplay.textContent = highScore;
+                highScoreDisplay.textContent = `Player 1: Level ${highScore}`;
             }
             
             setTimeout(() => startNewRound(), 1000);
@@ -101,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update score display
     function updateScore() {
         scoreDisplay.textContent = score;
+        highScoreDisplay.textContent = `Player 1: Level ${topScores.length > 0 ? topScores[0] : 0}`;
     }
     
     // Game over
@@ -129,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         topScoresList.innerHTML = '';
         topScores.forEach((score, index) => {
             const li = document.createElement('li');
-            li.textContent = `${index + 1}. ${score}`;
+            li.textContent = `Player ${index + 1}: Level ${score}`;
             topScoresList.appendChild(li);
         });
     }
@@ -140,6 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
         strictBtn.textContent = `Strict Mode: ${strictMode ? 'ON' : 'OFF'}`;
     }
     
+    // Play sound for buttons
+    function playSound(color) {
+        const audio = new Audio(`sounds/${color}.mp3`);
+        audio.play().catch(e => console.log("Audio play failed:", e));
+    }
+    
     // Event listeners
     buttons.forEach(button => {
         button.addEventListener('click', handleButtonClick);
@@ -148,21 +173,21 @@ document.addEventListener('DOMContentLoaded', () => {
     startBtn.addEventListener('click', () => {
         initGame();
         startNewRound();
+        if (musicOn) bgMusic.play().catch(e => console.log("Music play failed:", e));
     });
     
     strictBtn.addEventListener('click', toggleStrictMode);
+    
+    musicBtn.addEventListener('click', toggleMusic);
     
     playAgainBtn.addEventListener('click', () => {
         gameOverScreen.classList.add('hidden');
         initGame();
         startNewRound();
+        if (musicOn) bgMusic.play().catch(e => console.log("Music play failed:", e));
     });
     
     // Initialize top scores display
     renderTopScores();
-    highScoreDisplay.textContent = topScores.length > 0 ? topScores[0] : 0;
-    function playSound(color) {
-    const audio = new Audio(`sounds/${color}.mp3`);
-    audio.play().catch(e => console.log("Audio play failed:", e));
-}
+    highScoreDisplay.textContent = `Player 1: Level ${topScores.length > 0 ? topScores[0] : 0}`;
 });
