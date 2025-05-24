@@ -24,9 +24,21 @@
         </div>
         
         <div class="controls">
-            <button id="start-btn">Start Game</button>
-            <button id="strict-btn">Strict Mode: OFF</button>
-            <button id="music-btn">Music: ON</button>
+            <div class="control-row">
+                <label>Difficulty:
+                    <select id="difficulty-select">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </label>
+                <button id="practice-btn">Practice Mode</button>
+            </div>
+            <div class="control-row">
+                <button id="start-btn">Start Game</button>
+                <button id="strict-btn">Strict Mode: OFF</button>
+                <button id="music-btn">Music: ON</button>
+            </div>
         </div>
         
         <div class="game-over hidden" id="game-over">
