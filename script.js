@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let strictMode = false;
     let gameActive = false;
     let difficulty = 'medium';
-    let practiceMode = false;
     let speedSettings = {
         easy: { sequenceSpeed: 1000, lightDuration: 600 },
         medium: { sequenceSpeed: 800, lightDuration: 500 },
@@ -34,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const difficultySelect = document.createElement('select');
     const practiceBtn = document.createElement('button');
     
-    // Create difficulty selection and practice button
+    // Create controls
     function createControls() {
         difficultySelect.id = 'difficulty-select';
         
@@ -56,10 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
             difficulty = e.target.value;
         });
         
-        // Create Practice Mode button
+        // Practice button
         practiceBtn.id = 'practice-btn';
         practiceBtn.textContent = 'Practice Mode';
-        practiceBtn.addEventListener('click', togglePracticeMode);
+        practiceBtn.addEventListener('click', startPracticeMode);
         
         // Add to controls div
         const controls = document.querySelector('.controls');
@@ -70,17 +69,21 @@ document.addEventListener('DOMContentLoaded', () => {
         controls.insertBefore(practiceBtn, startBtn);
     }
     
-    // Toggle Practice Mode
-    function togglePracticeMode() {
-        practiceMode = !practiceMode;
-        practiceBtn.textContent = practiceMode ? 'Practice Mode: ON' : 'Practice Mode';
-        practiceBtn.style.backgroundColor = practiceMode ? '#4CAF50' : '#333';
+    // Start Practice Mode
+    function startPracticeMode() {
+        practiceBtn.disabled = true;
+        practiceBtn.textContent = 'Practicing...';
+        practiceBtn.style.backgroundColor = '#9c27b0';
         
-        if (practiceMode) {
-            startBtn.textContent = 'Start Practice';
-        } else {
-            startBtn.textContent = 'Start Game';
-        }
+        // Initialize practice game
+        sequence = [];
+        playerSequence = [];
+        score = 0;
+        scoreDisplay.textContent = score;
+        gameActive = true;
+        startNewRound();
+        
+        if (musicOn) bgMusic.play().catch(e => console.log("Music play failed:", e));
     }
     
     // Toggle music function
@@ -111,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playSequence();
     }
     
-    // Play the current sequence with difficulty-based speed
+    // Play the current sequence
     function playSequence() {
         let i = 0;
         const speed = speedSettings[difficulty].sequenceSpeed;
@@ -128,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, speed);
     }
     
-    // Light up a button with difficulty-based duration
+    // Light up a button
     function lightUpButton(buttonId) {
         const button = document.getElementById(buttonId.toString());
         button.classList.add('lit');
@@ -139,19 +142,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, speedSettings[difficulty].lightDuration);
     }
     
-    // Update score display (won't update top scores in practice mode)
+    // Update score display
     function updateScore() {
         scoreDisplay.textContent = score;
         
-        if (!practiceMode) {
-            if (score > highScore) {
-                highScore = score;
-                highScoreDisplay.textContent = `Highest: Level ${highScore}`;
-            }
-            
-            if (score > 0 && !topScores.includes(score)) {
-                updateTopScores(score);
-            }
+        if (score > highScore) {
+            highScore = score;
+            highScoreDisplay.textContent = `Highest: Level ${highScore}`;
+        }
+        
+        if (score > 0 && !topScores.includes(score)) {
+            updateTopScores(score);
         }
     }
     
@@ -163,8 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
         playerSequence.push(buttonId);
         lightUpButton(buttonId);
         
+        // Check if the player's sequence matches
         if (playerSequence[playerSequence.length - 1] !== sequence[playerSequence.length - 1]) {
-            if (strictMode && !practiceMode) {
+            // Wrong sequence
+            if (strictMode && !practiceBtn.disabled) {
                 gameOver();
             } else {
                 setTimeout(() => playSequence(), 1000);
@@ -173,25 +176,30 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
+        // Correct sequence so far
         if (playerSequence.length === sequence.length) {
+            // Completed the sequence
             score++;
-            updateScore();
+            if (!practiceBtn.disabled) { // Only update score if not in practice mode
+                updateScore();
+            } else {
+                scoreDisplay.textContent = score;
+            }
+            
             setTimeout(() => startNewRound(), speedSettings[difficulty].sequenceSpeed);
         }
     }
     
-    // Game over (only in regular mode)
+    // Game over
     function gameOver() {
-        if (practiceMode) return;
-        
         gameActive = false;
         finalScoreDisplay.textContent = score;
         gameOverScreen.classList.remove('hidden');
     }
     
-    // Update top scores (not used in practice mode)
+    // Update top scores
     function updateTopScores(newScore) {
-        if (practiceMode) return;
+        if (practiceBtn.disabled) return; // Don't update in practice mode
         
         if (!topScores.includes(newScore)) {
             topScores.push(newScore);
@@ -212,14 +220,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Toggle strict mode (disabled in practice mode)
+    // Toggle strict mode
     function toggleStrictMode() {
-        if (practiceMode) {
-            strictMode = false;
-            strictBtn.textContent = 'Strict Mode: OFF';
-            return;
-        }
-        
         strictMode = !strictMode;
         strictBtn.textContent = `Strict Mode: ${strictMode ? 'ON' : 'OFF'}`;
     }
@@ -228,6 +230,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function playSound(color) {
         const audio = new Audio(`sounds/${color}.mp3`);
         audio.play().catch(e => console.log("Audio play failed:", e));
+    }
+    
+    // Reset practice mode
+    function resetPracticeMode() {
+        practiceBtn.disabled = false;
+        practiceBtn.textContent = 'Practice Mode';
+        practiceBtn.style.backgroundColor = '#9c27b0';
     }
     
     // Create controls on load
@@ -239,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     startBtn.addEventListener('click', () => {
+        resetPracticeMode();
         initGame();
         startNewRound();
         if (musicOn) bgMusic.play().catch(e => console.log("Music play failed:", e));
@@ -248,6 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     musicBtn.addEventListener('click', toggleMusic);
     
     playAgainBtn.addEventListener('click', () => {
+        resetPracticeMode();
         gameOverScreen.classList.add('hidden');
         initGame();
         startNewRound();
