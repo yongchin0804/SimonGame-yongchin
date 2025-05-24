@@ -10,30 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let playerSequence = [];
     let score = 0;
     let highScore = 0;
-    let topScores = JSON.parse(localStorage.getItem('simonTopScores')) || [];
+    let topScores = [];
     let strictMode = false;
     let gameActive = false;
     let isPlayingSequence = false;
     let difficulty = 'medium';
+    let playerCounter = 0;
     let speedSettings = {
         easy: { sequenceSpeed: 1000, lightDuration: 600 },
         medium: { sequenceSpeed: 800, lightDuration: 500 },
         hard: { sequenceSpeed: 500, lightDuration: 300 }
     };
-    let playerCounter = topScores.length > 0 
-        ? Math.max(...topScores.map(entry => entry.player)) 
-        : 0;
-
-    // Migrate old score format if needed
-    if (topScores.length > 0 && typeof topScores[0] === 'number') {
-        topScores = topScores.map((score, index) => ({
-            player: index + 1,
-            score: score,
-            timestamp: Date.now()
-        }));
-        localStorage.setItem('simonTopScores', JSON.stringify(topScores));
-        playerCounter = topScores.length;
-    }
 
     // DOM elements
     const buttons = document.querySelectorAll('.button');
@@ -54,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
         practiceBtn.textContent = 'Practicing...';
         practiceBtn.style.backgroundColor = '#9c27b0';
         
-        // Initialize practice game
         sequence = [];
         playerSequence = [];
         score = 0;
@@ -65,16 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (musicOn) bgMusic.play().catch(e => console.log("Music play failed:", e));
     }
 
-    // Toggle music function
+    // Toggle music
     function toggleMusic() {
         musicOn = !musicOn;
         musicBtn.textContent = `Music: ${musicOn ? 'ON' : 'OFF'}`;
-        
-        if (musicOn) {
-            bgMusic.play().catch(e => console.log("Music play failed:", e));
-        } else {
-            bgMusic.pause();
-        }
+        musicOn ? bgMusic.play() : bgMusic.pause();
     }
 
     // Initialize game
@@ -86,14 +67,14 @@ document.addEventListener('DOMContentLoaded', () => {
         gameActive = true;
     }
 
-    // Start a new round
+    // Start new round
     function startNewRound() {
         playerSequence = [];
         sequence.push(Math.floor(Math.random() * buttons.length));
         playSequence();
     }
 
-    // Play the current sequence
+    // Play sequence
     function playSequence() {
         isPlayingSequence = true;
         let i = 0;
@@ -112,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, speed);
     }
 
-    // Light up a button
+    // Light up button
     function lightUpButton(buttonId) {
         const button = document.getElementById(buttonId.toString());
         if (!button) return;
@@ -128,18 +109,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update score display
     function updateScore() {
         scoreDisplay.textContent = score;
-        
         if (score > highScore) {
             highScore = score;
             highScoreDisplay.textContent = highScore;
         }
-        
         if (score > 0 && !practiceBtn.disabled) {
             updateTopScores(score);
         }
     }
 
-    // Handle player input
+    // Handle button clicks
     function handleButtonClick(e) {
         if (!gameActive || isPlayingSequence) return;
         
@@ -147,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerSequence.push(buttonId);
         lightUpButton(buttonId);
         
-        // Check if the player's sequence matches
+        // Check sequence match
         if (playerSequence[playerSequence.length - 1] !== sequence[playerSequence.length - 1]) {
             playSound('wrong');
             if (strictMode && !practiceBtn.disabled) {
@@ -159,15 +138,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Correct sequence so far
+        // Correct sequence
         if (playerSequence.length === sequence.length) {
             score++;
-            if (!practiceBtn.disabled) {
-                updateScore();
-            } else {
-                scoreDisplay.textContent = score;
-            }
-            
+            !practiceBtn.disabled ? updateScore() : scoreDisplay.textContent = score;
             setTimeout(() => startNewRound(), speedSettings[difficulty].sequenceSpeed);
         }
     }
@@ -181,35 +155,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update top scores
     function updateTopScores(newScore) {
-        if (practiceBtn.disabled) return;
-        
         playerCounter++;
-        const newEntry = {
-            player: playerCounter,
-            score: newScore,
-            timestamp: Date.now()
-        };
-        
-        topScores.push(newEntry);
-        
-        // Sort by score descending, then by timestamp ascending
-        topScores.sort((a, b) => {
-            if (b.score !== a.score) return b.score - a.score;
-            return a.timestamp - b.timestamp;
-        });
-        
-        // Keep only top 10 scores
+        topScores.push({ player: playerCounter, score: newScore });
+        topScores.sort((a, b) => b.score - a.score);
         topScores = topScores.slice(0, 10);
-        localStorage.setItem('simonTopScores', JSON.stringify(topScores));
         renderTopScores();
     }
 
-    // Render top scores
+    // Render scores
     function renderTopScores() {
         topScoresList.innerHTML = '';
         topScores.forEach((entry, index) => {
             const li = document.createElement('li');
-            li.textContent = `${index + 1}. Player ${entry.player}: Score ${entry.score}`;
+            li.textContent = `${index + 1}. Player ${entry.player}: ${entry.score}`;
             topScoresList.appendChild(li);
         });
     }
@@ -220,11 +178,10 @@ document.addEventListener('DOMContentLoaded', () => {
         strictBtn.textContent = `Strict Mode: ${strictMode ? 'ON' : 'OFF'}`;
     }
 
-    // Play sound for buttons
+    // Play sounds
     function playSound(color) {
         try {
-            const audio = new Audio(`sounds/${color}.mp3`);
-            audio.play().catch(e => console.log("Audio play failed:", e));
+            new Audio(`sounds/${color}.mp3`).play();
         } catch (e) {
             console.log("Sound error:", e);
         }
@@ -238,37 +195,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Event listeners
-    buttons.forEach(button => {
-        button.addEventListener('click', handleButtonClick);
-    });
-    
+    buttons.forEach(button => button.addEventListener('click', handleButtonClick));
     startBtn.addEventListener('click', () => {
         resetPracticeMode();
         initGame();
         startNewRound();
-        if (musicOn) bgMusic.play().catch(e => console.log("Music play failed:", e));
+        if (musicOn) bgMusic.play();
     });
-    
     strictBtn.addEventListener('click', toggleStrictMode);
     musicBtn.addEventListener('click', toggleMusic);
-    
     practiceBtn.addEventListener('click', startPracticeMode);
-    
     playAgainBtn.addEventListener('click', () => {
         resetPracticeMode();
         gameOverScreen.classList.add('hidden');
         initGame();
         startNewRound();
-        if (musicOn) bgMusic.play().catch(e => console.log("Music play failed:", e));
+        if (musicOn) bgMusic.play();
     });
-    
-    difficultySelect.addEventListener('change', (e) => {
-        difficulty = e.target.value;
-    });
-    
-    // Initialize displays
+    difficultySelect.addEventListener('change', (e) => difficulty = e.target.value);
+
+    // Initial setup
     renderTopScores();
-    highScoreDisplay.textContent = topScores.length > 0 
-        ? Math.max(...topScores.map(entry => entry.score)) 
-        : '0';
+    highScoreDisplay.textContent = '0';
 });
