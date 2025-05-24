@@ -19,11 +19,13 @@
             <div class="button blue" id="1" data-color="blue"></div>
             <div class="button green" id="2" data-color="green"></div>
             <div class="button yellow" id="3" data-color="yellow"></div>
+            <div class="button pink" id="4" data-color="pink"></div>
         </div>
         
         <div class="controls">
             <button id="start-btn">Start Game</button>
             <button id="strict-btn">Strict Mode: OFF</button>
+            <button id="music-btn">Music: ON</button> <!-- Added music toggle button -->
         </div>
         
         <div class="game-over hidden" id="game-over">
@@ -36,6 +38,12 @@
             <button id="play-again-btn">Play Again</button>
         </div>
     </div>
+    
+    <!-- Added audio element -->
+    <audio id="bgMusic" loop>
+        <source src="bg-music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
     
     <script src="script.js"></script>
 </body>
