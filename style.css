@@ -1,21 +1,3 @@
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
-    margin: 0;
-}
-
-.game-container {
-    text-align: center;
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
 .simon-board {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -26,18 +8,19 @@ body {
 }
 
 .button {
+    width: 100%;
+    height: 0;
+    padding-bottom: 100%; /* Creates square buttons */
     border-radius: 50%;
     cursor: pointer;
     transition: opacity 0.3s;
+    position: relative;
 }
 
-.button:hover {
-    opacity: 0.8;
-}
-
+/* Remove the grid-column span for red button */
 .red {
     background-color: #ff4d4d;
-    grid-column: span 2;
+    /* Removed: grid-column: span 2; */
 }
 
 .blue {
@@ -59,92 +42,4 @@ body {
 .lit {
     opacity: 0.5;
     box-shadow: 0 0 20px white;
-}
-
-.controls {
-    margin: 20px 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-}
-
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #333;
-    color: white;
-    border: none;
-    border-radius: 5px;
-}
-
-button:hover {
-    background-color: #555;
-}
-
-#practice-btn {
-    background-color: #9c27b0;
-}
-
-#practice-btn:hover {
-    background-color: #7b1fa2;
-}
-
-#start-btn {
-    background-color: #2196F3;
-}
-
-#start-btn:hover {
-    background-color: #0b7dda;
-}
-
-#strict-btn {
-    background-color: #ff9800;
-}
-
-#strict-btn:hover {
-    background-color: #e68a00;
-}
-
-#music-btn {
-    background-color: #4CAF50;
-}
-
-#music-btn:hover {
-    background-color: #45a049;
-}
-
-.game-over {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #f8f8f8;
-    border-radius: 5px;
-}
-
-.hidden {
-    display: none;
-}
-
-.top-scores {
-    margin-top: 20px;
-}
-
-.score-display {
-    font-size: 18px;
-    margin: 10px 0;
-}
-
-#difficulty-select {
-    padding: 8px;
-    margin-left: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-.controls label {
-    display: inline-flex;
-    align-items: center;
-    margin-right: 10px;
-    font-size: 16px;
 }
