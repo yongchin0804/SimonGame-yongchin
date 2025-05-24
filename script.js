@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Background music setup
     const bgMusic = document.getElementById('bgMusic');
-    bgMusic.volume = 0.3; // Set volume to 30%
+    bgMusic.volume = 0.3;
     let musicOn = true;
     const musicBtn = document.getElementById('music-btn');
     
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start a new round
     function startNewRound() {
         playerSequence = [];
-        sequence.push(Math.floor(Math.random() * 5)); // Now includes 5 buttons (0-4)
+        sequence.push(Math.floor(Math.random() * 5));
         playSequence();
     }
     
@@ -72,8 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function lightUpButton(buttonId) {
         const button = document.getElementById(buttonId.toString());
         button.classList.add('lit');
-        
-        // Play sound
         playSound(button.getAttribute('data-color'));
         
         setTimeout(() => {
@@ -89,9 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerSequence.push(buttonId);
         lightUpButton(buttonId);
         
-        // Check if the player's sequence matches
         if (playerSequence[playerSequence.length - 1] !== sequence[playerSequence.length - 1]) {
-            // Wrong sequence
             if (strictMode) {
                 gameOver();
             } else {
@@ -101,15 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Correct sequence so far
         if (playerSequence.length === sequence.length) {
-            // Completed the sequence
             score++;
             updateScore();
             
             if (score > highScore) {
                 highScore = score;
-                highScoreDisplay.textContent = `Player 1: Level ${highScore}`;
+                highScoreDisplay.textContent = highScore;
             }
             
             setTimeout(() => startNewRound(), 1000);
@@ -119,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update score display
     function updateScore() {
         scoreDisplay.textContent = score;
-        highScoreDisplay.textContent = `Player 1: Level ${topScores.length > 0 ? topScores[0] : 0}`;
+        highScoreDisplay.textContent = topScores.length > 0 ? topScores[0] : 0;
     }
     
     // Game over
@@ -133,22 +127,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update top scores
     function updateTopScores(newScore) {
         topScores.push(newScore);
-        topScores.sort((a, b) => b - a); // Sort descending
-        topScores = topScores.slice(0, 10); // Keep only top 10
-        
-        // Save to localStorage
+        topScores.sort((a, b) => b - a);
+        topScores = topScores.slice(0, 10);
         localStorage.setItem('simonTopScores', JSON.stringify(topScores));
-        
-        // Update display
         renderTopScores();
     }
     
-    // Render top scores
+    // Render top scores (simplified to show just scores)
     function renderTopScores() {
         topScoresList.innerHTML = '';
         topScores.forEach((score, index) => {
             const li = document.createElement('li');
-            li.textContent = `Player ${index + 1}: Level ${score}`;
+            li.textContent = `${score}`; // Just show the score number
             topScoresList.appendChild(li);
         });
     }
@@ -187,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (musicOn) bgMusic.play().catch(e => console.log("Music play failed:", e));
     });
     
-    // Initialize top scores display
+    // Initialize displays
     renderTopScores();
-    highScoreDisplay.textContent = `Player 1: Level ${topScores.length > 0 ? topScores[0] : 0}`;
+    highScoreDisplay.textContent = topScores.length > 0 ? topScores[0] : 0;
 });
