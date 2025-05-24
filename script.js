@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let topScores = JSON.parse(localStorage.getItem('simonTopScores')) || [0, 0, 0];
     let strictMode = false;
     let gameActive = false;
-    let difficulty = 'medium'; // Default difficulty
+    let difficulty = 'medium';
+    let practiceMode = false;
     let speedSettings = {
         easy: { sequenceSpeed: 1000, lightDuration: 600 },
         medium: { sequenceSpeed: 800, lightDuration: 500 },
@@ -31,9 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const topScoresList = document.getElementById('top-scores-list');
     const playAgainBtn = document.getElementById('play-again-btn');
     const difficultySelect = document.createElement('select');
+    const practiceBtn = document.createElement('button');
     
-    // Create difficulty selection
-    function createDifficultySelect() {
+    // Create difficulty selection and practice button
+    function createControls() {
         difficultySelect.id = 'difficulty-select';
         
         const difficulties = [
@@ -54,12 +56,31 @@ document.addEventListener('DOMContentLoaded', () => {
             difficulty = e.target.value;
         });
         
+        // Create Practice Mode button
+        practiceBtn.id = 'practice-btn';
+        practiceBtn.textContent = 'Practice Mode';
+        practiceBtn.addEventListener('click', togglePracticeMode);
+        
         // Add to controls div
         const controls = document.querySelector('.controls');
         const label = document.createElement('label');
         label.textContent = 'Difficulty: ';
         label.appendChild(difficultySelect);
         controls.insertBefore(label, startBtn);
+        controls.insertBefore(practiceBtn, startBtn);
+    }
+    
+    // Toggle Practice Mode
+    function togglePracticeMode() {
+        practiceMode = !practiceMode;
+        practiceBtn.textContent = practiceMode ? 'Practice Mode: ON' : 'Practice Mode';
+        practiceBtn.style.backgroundColor = practiceMode ? '#4CAF50' : '#333';
+        
+        if (practiceMode) {
+            startBtn.textContent = 'Start Practice';
+        } else {
+            startBtn.textContent = 'Start Game';
+        }
     }
     
     // Toggle music function
@@ -118,17 +139,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }, speedSettings[difficulty].lightDuration);
     }
     
-    // Update score display and track level achievements
+    // Update score display (won't update top scores in practice mode)
     function updateScore() {
         scoreDisplay.textContent = score;
         
-        if (score > highScore) {
-            highScore = score;
-            highScoreDisplay.textContent = `Highest: Level ${highScore}`;
-        }
-        
-        if (score > 0 && !topScores.includes(score)) {
-            updateTopScores(score);
+        if (!practiceMode) {
+            if (score > highScore) {
+                highScore = score;
+                highScoreDisplay.textContent = `Highest: Level ${highScore}`;
+            }
+            
+            if (score > 0 && !topScores.includes(score)) {
+                updateTopScores(score);
+            }
         }
     }
     
@@ -141,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lightUpButton(buttonId);
         
         if (playerSequence[playerSequence.length - 1] !== sequence[playerSequence.length - 1]) {
-            if (strictMode) {
+            if (strictMode && !practiceMode) {
                 gameOver();
             } else {
                 setTimeout(() => playSequence(), 1000);
@@ -157,15 +180,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Game over
+    // Game over (only in regular mode)
     function gameOver() {
+        if (practiceMode) return;
+        
         gameActive = false;
         finalScoreDisplay.textContent = score;
         gameOverScreen.classList.remove('hidden');
     }
     
-    // Update top scores
+    // Update top scores (not used in practice mode)
     function updateTopScores(newScore) {
+        if (practiceMode) return;
+        
         if (!topScores.includes(newScore)) {
             topScores.push(newScore);
             topScores.sort((a, b) => b - a);
@@ -185,8 +212,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Toggle strict mode
+    // Toggle strict mode (disabled in practice mode)
     function toggleStrictMode() {
+        if (practiceMode) {
+            strictMode = false;
+            strictBtn.textContent = 'Strict Mode: OFF';
+            return;
+        }
+        
         strictMode = !strictMode;
         strictBtn.textContent = `Strict Mode: ${strictMode ? 'ON' : 'OFF'}`;
     }
@@ -197,8 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
         audio.play().catch(e => console.log("Audio play failed:", e));
     }
     
-    // Create difficulty selection on load
-    createDifficultySelect();
+    // Create controls on load
+    createControls();
     
     // Event listeners
     buttons.forEach(button => {
