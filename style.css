@@ -105,6 +105,10 @@ h1, h2, h3 {
 
 #practice-btn { background-color: #9c27b0; }
 #practice-btn:hover { background-color: #8e24aa; }
+#practice-btn[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
 
 #play-again-btn { 
     background-color: #FF9800;
@@ -151,7 +155,6 @@ select {
     min-width: 120px;
 }
 
-/* Responsive adjustments */
 @media (max-width: 500px) {
     .game-container {
         padding: 20px;
