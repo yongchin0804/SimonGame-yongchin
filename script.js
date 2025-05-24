@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let playerSequence = [];
     let score = 0;
     let highScore = 0;
-    let topScores = JSON.parse(localStorage.getItem('simonTopScores')) || [0, 0, 0];
+    let topScores = JSON.parse(localStorage.getItem('simonTopScores')) || [];
     let strictMode = false;
     let gameActive = false;
     let difficulty = 'medium';
@@ -30,44 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const finalScoreDisplay = document.getElementById('final-score');
     const topScoresList = document.getElementById('top-scores-list');
     const playAgainBtn = document.getElementById('play-again-btn');
-    const difficultySelect = document.createElement('select');
-    const practiceBtn = document.createElement('button');
-    
-    // Create controls
-    function createControls() {
-        difficultySelect.id = 'difficulty-select';
-        
-        const difficulties = [
-            { value: 'easy', text: 'Easy' },
-            { value: 'medium', text: 'Medium' },
-            { value: 'hard', text: 'Hard' }
-        ];
-        
-        difficulties.forEach(diff => {
-            const option = document.createElement('option');
-            option.value = diff.value;
-            option.textContent = diff.text;
-            if (diff.value === difficulty) option.selected = true;
-            difficultySelect.appendChild(option);
-        });
-        
-        difficultySelect.addEventListener('change', (e) => {
-            difficulty = e.target.value;
-        });
-        
-        // Practice button
-        practiceBtn.id = 'practice-btn';
-        practiceBtn.textContent = 'Practice Mode';
-        practiceBtn.addEventListener('click', startPracticeMode);
-        
-        // Add to controls div
-        const controls = document.querySelector('.controls');
-        const label = document.createElement('label');
-        label.textContent = 'Difficulty: ';
-        label.appendChild(difficultySelect);
-        controls.insertBefore(label, startBtn);
-        controls.insertBefore(practiceBtn, startBtn);
-    }
+    const difficultySelect = document.getElementById('difficulty-select');
+    const practiceBtn = document.getElementById('practice-btn');
     
     // Start Practice Mode
     function startPracticeMode() {
@@ -110,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start a new round
     function startNewRound() {
         playerSequence = [];
-        sequence.push(Math.floor(Math.random() * 5));
+        sequence.push(Math.floor(Math.random() * buttons.length)); // Use buttons.length instead of hardcoded 5
         playSequence();
     }
     
@@ -134,6 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Light up a button
     function lightUpButton(buttonId) {
         const button = document.getElementById(buttonId.toString());
+        if (!button) return; // Safety check
+        
         button.classList.add('lit');
         playSound(button.getAttribute('data-color'));
         
@@ -148,10 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (score > highScore) {
             highScore = score;
-            highScoreDisplay.textContent = `Highest: Level ${highScore}`;
+            highScoreDisplay.textContent = highScore;
         }
         
-        if (score > 0 && !topScores.includes(score)) {
+        if (score > 0) {
             updateTopScores(score);
         }
     }
@@ -167,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Check if the player's sequence matches
         if (playerSequence[playerSequence.length - 1] !== sequence[playerSequence.length - 1]) {
             // Wrong sequence
+            playSound('wrong');
             if (strictMode && !practiceBtn.disabled) {
                 gameOver();
             } else {
@@ -180,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (playerSequence.length === sequence.length) {
             // Completed the sequence
             score++;
-            if (!practiceBtn.disabled) { // Only update score if not in practice mode
+            if (!practiceBtn.disabled) {
                 updateScore();
             } else {
                 scoreDisplay.textContent = score;
@@ -199,23 +166,22 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update top scores
     function updateTopScores(newScore) {
-        if (practiceBtn.disabled) return; // Don't update in practice mode
+        if (practiceBtn.disabled) return;
         
-        if (!topScores.includes(newScore)) {
-            topScores.push(newScore);
-            topScores.sort((a, b) => b - a);
-            topScores = topScores.slice(0, 3);
-            localStorage.setItem('simonTopScores', JSON.stringify(topScores));
-            renderTopScores();
-        }
+        topScores.push(newScore);
+        topScores = [...new Set(topScores)]; // Remove duplicates
+        topScores.sort((a, b) => b - a);
+        topScores = topScores.slice(0, 10);
+        localStorage.setItem('simonTopScores', JSON.stringify(topScores));
+        renderTopScores();
     }
     
     // Render top scores
     function renderTopScores() {
         topScoresList.innerHTML = '';
-        topScores.filter(score => score > 0).forEach((score) => {
+        topScores.forEach((score, index) => {
             const li = document.createElement('li');
-            li.textContent = `Reached Level ${score}`;
+            li.textContent = `${index + 1}. Reached Level ${score}`;
             topScoresList.appendChild(li);
         });
     }
@@ -228,8 +194,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Play sound for buttons
     function playSound(color) {
-        const audio = new Audio(`sounds/${color}.mp3`);
-        audio.play().catch(e => console.log("Audio play failed:", e));
+        try {
+            const audio = new Audio(`sounds/${color}.mp3`);
+            audio.play().catch(e => console.log("Audio play failed:", e));
+        } catch (e) {
+            console.log("Sound error:", e);
+        }
     }
     
     // Reset practice mode
@@ -238,9 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
         practiceBtn.textContent = 'Practice Mode';
         practiceBtn.style.backgroundColor = '#9c27b0';
     }
-    
-    // Create controls on load
-    createControls();
     
     // Event listeners
     buttons.forEach(button => {
@@ -257,6 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
     strictBtn.addEventListener('click', toggleStrictMode);
     musicBtn.addEventListener('click', toggleMusic);
     
+    practiceBtn.addEventListener('click', startPracticeMode);
+    
     playAgainBtn.addEventListener('click', () => {
         resetPracticeMode();
         gameOverScreen.classList.add('hidden');
@@ -265,7 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (musicOn) bgMusic.play().catch(e => console.log("Music play failed:", e));
     });
     
+    difficultySelect.addEventListener('change', (e) => {
+        difficulty = e.target.value;
+    });
+    
     // Initialize displays
     renderTopScores();
-    highScoreDisplay.textContent = topScores.length > 0 ? `Highest: Level ${Math.max(...topScores)}` : '0';
+    highScoreDisplay.textContent = topScores.length > 0 ? Math.max(...topScores) : '0';
 });
