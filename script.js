@@ -10,12 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let playerSequence = [];
     let score = 0;
     let highScore = 0;
-    let topScores = [];
+    let allScores = []; // Changed from topScores to allScores
     let strictMode = false;
     let gameActive = false;
     let isPlayingSequence = false;
     let difficulty = 'medium';
-    let playerCounter = 0;
     let speedSettings = {
         easy: { sequenceSpeed: 1000, lightDuration: 600 },
         medium: { sequenceSpeed: 800, lightDuration: 500 },
@@ -34,6 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const playAgainBtn = document.getElementById('play-again-btn');
     const difficultySelect = document.getElementById('difficulty-select');
     const practiceBtn = document.getElementById('practice-btn');
+    const topScoresTitle = document.querySelector('.top-scores h3'); // For changing the title
+
+    // Change the title to "Highest Score List"
+    topScoresTitle.textContent = 'Highest Score List';
 
     // Start Practice Mode
     function startPracticeMode() {
@@ -113,9 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
             highScore = score;
             highScoreDisplay.textContent = highScore;
         }
-        if (score > 0 && !practiceBtn.disabled) {
-            updateTopScores(score);
-        }
     }
 
     // Handle button clicks
@@ -146,30 +146,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Game over
+    // Game over - now records all scores
     function gameOver() {
         gameActive = false;
         finalScoreDisplay.textContent = score;
+        
+        // Always add the current score as Player A
+        if (score > 0 && !practiceBtn.disabled) {
+            allScores.push(score);
+            allScores.sort((a, b) => b - a); // Sort descending
+            renderAllScores();
+        }
+        
         gameOverScreen.classList.remove('hidden');
     }
 
-    // Update top scores
-    function updateTopScores(newScore) {
-        playerCounter++;
-        // Convert player number to letter (1=A, 2=B, etc.)
-        const playerLetter = String.fromCharCode(64 + playerCounter);
-        topScores.push({ player: playerLetter, score: newScore });
-        topScores.sort((a, b) => b.score - a.score);
-        topScores = topScores.slice(0, 10);
-        renderTopScores();
-    }
-
-    // Render scores - Modified to show "1. Player A: Score 3" format
-    function renderTopScores() {
+    // Render all scores - Modified to show all Player A scores in descending order
+    function renderAllScores() {
         topScoresList.innerHTML = '';
-        topScores.forEach((entry, index) => {
+        allScores.forEach((score, index) => {
             const li = document.createElement('li');
-            li.textContent = `${index + 1}. Player ${entry.player}: Score ${entry.score}`;
+            li.textContent = `${index + 1}. Player A: Score ${score}`;
             topScoresList.appendChild(li);
         });
     }
@@ -217,6 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
     difficultySelect.addEventListener('change', (e) => difficulty = e.target.value);
 
     // Initial setup
-    renderTopScores();
+    renderAllScores();
     highScoreDisplay.textContent = '0';
 });
