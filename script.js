@@ -155,23 +155,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update top scores
     function updateTopScores(newScore) {
-    playerCounter++;
-    // Convert player number to letter (1=A, 2=B, etc.)
-    const playerLetter = String.fromCharCode(64 + playerCounter);
-    topScores.push({ player: playerLetter, score: newScore });
-    topScores.sort((a, b) => b.score - a.score);
-    topScores = topScores.slice(0, 10);
-    renderTopScores();
-}
+        playerCounter++;
+        // Convert player number to letter (1=A, 2=B, etc.)
+        const playerLetter = String.fromCharCode(64 + playerCounter);
+        topScores.push({ player: playerLetter, score: newScore });
+        topScores.sort((a, b) => b.score - a.score);
+        topScores = topScores.slice(0, 10);
+        renderTopScores();
+    }
 
-    // Render scores
+    // Render scores - Modified to show "1. Player A: Score 3" format
     function renderTopScores() {
-    topScoresList.innerHTML = '';
-    topScores.forEach((entry, index) => {
-        const li = document.createElement('li');
-        li.textContent = `${index + 1}. Player ${String.fromCharCode(64 + entry.player)}: Score ${entry.score}`;
-        topScoresList.appendChild(li);
-    });
+        topScoresList.innerHTML = '';
+        topScores.forEach((entry, index) => {
+            const li = document.createElement('li');
+            li.textContent = `${index + 1}. Player ${entry.player}: Score ${entry.score}`;
+            topScoresList.appendChild(li);
+        });
     }
 
     // Toggle strict mode
