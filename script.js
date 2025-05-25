@@ -163,13 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render all scores - Modified to show all Player A scores in descending order
     function renderAllScores() {
-        topScoresList.innerHTML = '';
-        allScores.forEach((score, index) => {
-            const li = document.createElement('li');
-            li.textContent = `${index + 1}. Player A: Score ${score}`;
-            topScoresList.appendChild(li);
-        });
-    }
+    topScoresList.innerHTML = '';
+    allScores.forEach((score, index) => {
+        const scoreItem = document.createElement('div');
+        scoreItem.textContent = `${index + 1}. Player A: Score ${score}`;
+        topScoresList.appendChild(scoreItem);
+    });
+}
 
     // Toggle strict mode
     function toggleStrictMode() {
