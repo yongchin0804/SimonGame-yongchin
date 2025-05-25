@@ -164,12 +164,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render scores
     function renderTopScores() {
-        topScoresList.innerHTML = '';
-        topScores.forEach((entry, index) => {
-            const li = document.createElement('li');
-            li.textContent = `${index + 1}. Player ${entry.player}: ${entry.score}`;
-            topScoresList.appendChild(li);
-        });
+    topScoresList.innerHTML = '';
+    topScores.forEach((entry, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${index + 1}. Player ${String.fromCharCode(64 + entry.player)}: Score ${entry.score}`;
+        topScoresList.appendChild(li);
+    });
     }
 
     // Toggle strict mode
