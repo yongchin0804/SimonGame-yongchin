@@ -155,12 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update top scores
     function updateTopScores(newScore) {
-        playerCounter++;
-        topScores.push({ player: playerCounter, score: newScore });
-        topScores.sort((a, b) => b.score - a.score);
-        topScores = topScores.slice(0, 10);
-        renderTopScores();
-    }
+    playerCounter++;
+    // Convert player number to letter (1=A, 2=B, etc.)
+    const playerLetter = String.fromCharCode(64 + playerCounter);
+    topScores.push({ player: playerLetter, score: newScore });
+    topScores.sort((a, b) => b.score - a.score);
+    topScores = topScores.slice(0, 10);
+    renderTopScores();
+}
 
     // Render scores
     function renderTopScores() {
