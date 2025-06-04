@@ -7,7 +7,7 @@ body {
     height: 100vh;
     margin: 0;
     text-align: center;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .game-container {
@@ -17,21 +17,21 @@ body {
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
     max-width: 500px;
     width: 90%;
-    transition: background-color 0.3s, box-shadow 0.3s;
+    transition: all 0.3s ease;
 }
 
 h1, h2, h3 {
     color: #333;
     margin: 0 0 20px 0;
     text-align: center;
-    transition: color 0.3s;
+    transition: color 0.3s ease;
 }
 
 .score-display {
     margin: 20px 0;
     font-size: 18px;
     text-align: center;
-    transition: color 0.3s;
+    transition: color 0.3s ease;
 }
 
 .score-display p {
@@ -51,7 +51,7 @@ h1, h2, h3 {
     height: 80px;
     border-radius: 50%;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     margin: 0 auto;
     border: 3px solid #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -68,6 +68,7 @@ h1, h2, h3 {
     opacity: 0.7;
     box-shadow: 0 0 25px white, 0 0 10px white;
     transform: scale(1.05);
+    transition: all 0.2s ease;
 }
 
 .controls {
@@ -93,7 +94,7 @@ h1, h2, h3 {
     color: white;
     cursor: pointer;
     font-size: 16px;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     min-width: 120px;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -135,7 +136,7 @@ h1, h2, h3 {
     border-radius: 10px;
     text-align: center;
     max-width: 400px;
-    transition: background-color 0.3s, color 0.3s;
+    transition: all 0.3s ease;
 }
 
 .hidden {
@@ -154,9 +155,14 @@ h1, h2, h3 {
     margin: 10px auto;
 }
 
+#top-scores-list div {
+    transition: color 0.3s ease;
+}
+
 label {
     margin-right: 10px;
     font-weight: bold;
+    transition: color 0.3s ease;
 }
 
 select {
@@ -166,10 +172,10 @@ select {
     background-color: white;
     font-size: 14px;
     min-width: 120px;
-    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    transition: all 0.3s ease;
 }
 
-/* Dark theme styles */
+/* Dark Theme Styles */
 body.dark-theme {
     background-color: #121212;
     color: #e0e0e0;
@@ -177,18 +183,63 @@ body.dark-theme {
 
 body.dark-theme .game-container {
     background-color: #1e1e1e;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+    border: 1px solid #333;
 }
 
-body.dark-theme h1, 
-body.dark-theme h2, 
-body.dark-theme h3,
-body.dark-theme .score-display {
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3 {
     color: #ffffff;
+}
+
+body.dark-theme .score-display {
+    color: #e0e0e0;
+}
+
+body.dark-theme .button {
+    border-color: #444;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-theme .lit {
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.7), 
+                0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+body.dark-theme .controls button {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-theme #start-btn { background-color: #388e3c; }
+body.dark-theme #start-btn:hover { background-color: #2e7d32; }
+
+body.dark-theme #strict-btn { background-color: #d32f2f; }
+body.dark-theme #strict-btn:hover { background-color: #c62828; }
+
+body.dark-theme #music-btn { background-color: #1976d2; }
+body.dark-theme #music-btn:hover { background-color: #1565c0; }
+
+body.dark-theme #practice-btn { background-color: #7b1fa2; }
+body.dark-theme #practice-btn:hover { background-color: #6a1b9a; }
+
+body.dark-theme #theme-toggle { 
+    background-color: #5e35b1;
+}
+body.dark-theme #theme-toggle:hover {
+    background-color: #512da8;
+}
+
+body.dark-theme #play-again-btn { 
+    background-color: #f57c00;
+}
+body.dark-theme #play-again-btn:hover { 
+    background-color: #ef6c00;
 }
 
 body.dark-theme .game-over {
     background-color: #2d2d2d;
+    border: 1px solid #444;
     color: #e0e0e0;
 }
 
@@ -198,6 +249,19 @@ body.dark-theme select {
     border-color: #555;
 }
 
+body.dark-theme label {
+    color: #e0e0e0;
+}
+
+body.dark-theme .top-scores h3 {
+    color: #bb86fc;
+}
+
+body.dark-theme #top-scores-list div {
+    color: #e0e0e0;
+}
+
+/* Responsive Design */
 @media (max-width: 500px) {
     .game-container {
         padding: 20px;
