@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const difficultySelect = document.getElementById('difficulty-select');
     const practiceBtn = document.getElementById('practice-btn');
     const themeToggleBtn = document.getElementById('theme-toggle');
-    const topScoresTitle = document.querySelector('.top-scores h3');
 
     // Theme state
     let darkTheme = false;
@@ -46,24 +45,33 @@ document.addEventListener('DOMContentLoaded', () => {
             darkTheme = true;
             document.body.classList.add('dark-theme');
             themeToggleBtn.textContent = 'Light Mode';
+            document.querySelectorAll('.button').forEach(btn => {
+                btn.style.borderColor = '#444';
+            });
         }
     }
 
     // Toggle theme
     function toggleTheme() {
         darkTheme = !darkTheme;
+        const body = document.body;
+        
         if (darkTheme) {
-            document.body.classList.add('dark-theme');
+            body.classList.add('dark-theme');
             themeToggleBtn.textContent = 'Light Mode';
+            document.querySelectorAll('.button').forEach(btn => {
+                btn.style.borderColor = '#444';
+            });
         } else {
-            document.body.classList.remove('dark-theme');
+            body.classList.remove('dark-theme');
             themeToggleBtn.textContent = 'Dark Mode';
+            document.querySelectorAll('.button').forEach(btn => {
+                btn.style.borderColor = '#fff';
+            });
         }
+        
         localStorage.setItem('simonDarkTheme', darkTheme);
     }
-
-    // Change the title to "Highest Score List"
-    topScoresTitle.textContent = 'Highest Score List';
 
     // Start Practice Mode
     function startPracticeMode() {
