@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let playerSequence = [];
     let score = 0;
     let highScore = 0;
-    let allScores = []; // Changed from topScores to allScores
+    let allScores = [];
     let strictMode = false;
     let gameActive = false;
     let isPlayingSequence = false;
@@ -33,7 +33,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const playAgainBtn = document.getElementById('play-again-btn');
     const difficultySelect = document.getElementById('difficulty-select');
     const practiceBtn = document.getElementById('practice-btn');
-    const topScoresTitle = document.querySelector('.top-scores h3'); // For changing the title
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const topScoresTitle = document.querySelector('.top-scores h3');
+
+    // Theme state
+    let darkTheme = false;
+
+    // Initialize theme
+    function initTheme() {
+        const savedTheme = localStorage.getItem('simonDarkTheme');
+        if (savedTheme === 'true') {
+            darkTheme = true;
+            document.body.classList.add('dark-theme');
+            themeToggleBtn.textContent = 'Light Mode';
+        }
+    }
+
+    // Toggle theme
+    function toggleTheme() {
+        darkTheme = !darkTheme;
+        if (darkTheme) {
+            document.body.classList.add('dark-theme');
+            themeToggleBtn.textContent = 'Light Mode';
+        } else {
+            document.body.classList.remove('dark-theme');
+            themeToggleBtn.textContent = 'Dark Mode';
+        }
+        localStorage.setItem('simonDarkTheme', darkTheme);
+    }
 
     // Change the title to "Highest Score List"
     topScoresTitle.textContent = 'Highest Score List';
@@ -146,30 +173,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Game over - now records all scores
+    // Game over
     function gameOver() {
         gameActive = false;
         finalScoreDisplay.textContent = score;
         
-        // Always add the current score as Player A
         if (score > 0 && !practiceBtn.disabled) {
             allScores.push(score);
-            allScores.sort((a, b) => b - a); // Sort descending
+            allScores.sort((a, b) => b - a);
             renderAllScores();
         }
         
         gameOverScreen.classList.remove('hidden');
     }
 
-    // Render all scores - Modified to show all Player A scores in descending order
+    // Render all scores
     function renderAllScores() {
-    topScoresList.innerHTML = '';
-    allScores.forEach((score, index) => {
-        const scoreItem = document.createElement('div');
-        scoreItem.textContent = `${index + 1}. Player A: Score ${score}`;
-        topScoresList.appendChild(scoreItem);
-    });
-}
+        topScoresList.innerHTML = '';
+        allScores.forEach((score, index) => {
+            const scoreItem = document.createElement('div');
+            scoreItem.textContent = `${index + 1}. Player A: Score ${score}`;
+            topScoresList.appendChild(scoreItem);
+        });
+    }
 
     // Toggle strict mode
     function toggleStrictMode() {
@@ -212,8 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (musicOn) bgMusic.play();
     });
     difficultySelect.addEventListener('change', (e) => difficulty = e.target.value);
+    themeToggleBtn.addEventListener('click', toggleTheme);
 
     // Initial setup
+    initTheme();
     renderAllScores();
     highScoreDisplay.textContent = '0';
 });
